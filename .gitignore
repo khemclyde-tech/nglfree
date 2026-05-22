@@ -1,0 +1,29 @@
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+!.env.example
+
+# Keep local Cloudflare resource IDs, domains, and bindings private.
+wrangler.toml
+
+# Local build/runtime state.
+.wrangler/
+.git-local/
+node_modules/
+dist/
+build/
+*.log
+
+# Local agent/editor state.
+.agents/
+.codex
+
+# Secret material and local databases.
+*.pem
+*.key
+*.p12
+*.sqlite
+*.sqlite3
+*.db

@@ -1,0 +1,40 @@
+name = "nglfree"
+main = "src/index.js"
+compatibility_date = "2026-04-08"
+
+# Copy this file to wrangler.toml for local development/deployment and fill in
+# your own Cloudflare resource IDs, service names, routes, and public variables.
+
+[[d1_databases]]
+binding = "DB"
+database_name = "YOUR_D1_DATABASE_NAME"
+database_id = "YOUR_D1_DATABASE_ID"
+
+[[services]]
+binding = "MAIL_PROXY"
+service = "YOUR_MAIL_PROXY_WORKER_NAME"
+
+[[secrets_store_secrets]]
+binding = "MAIL_PROXY_TOKEN"
+store_id = "YOUR_SECRETS_STORE_ID"
+secret_name = "YOUR_MAIL_PROXY_SECRET_NAME"
+
+[assets]
+directory = "public"
+binding = "ASSETS"
+
+# Optional: uncomment and set your public route only in local wrangler.toml.
+# [[routes]]
+# pattern = "messages.example.com"
+# custom_domain = true
+
+[vars]
+PROFILE_NICKNAME = "@your_name"
+PROFILE_PROMPT = "Say something..."
+MAIL_PROXY_NOTIFY_PRIORITY = "3"
+
+[secrets]
+required = [ "ADMIN_TOKEN", "TURNSTILE_SITE_KEY", "TURNSTILE_SECRET" ]
+
+# Optional secret:
+# wrangler secret put PROFILE_AVATAR_URL

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NGL Free</title>
+  <style>
+    :root {
+      --bg: #f5efe8;
+      --bg-deep: #ead9c9;
+      --panel: rgba(255, 250, 244, 0.9);
+      --ink: #1f1b17;
+      --muted: #685d52;
+      --line: rgba(57, 42, 28, 0.12);
+      --accent: #b45337;
+      --accent-deep: #87331f;
+      --accent-soft: rgba(180, 83, 55, 0.1);
+      --success: #1f7a5b;
+      --success-soft: rgba(31, 122, 91, 0.12);
+      --danger: #a33b2d;
+      --danger-soft: rgba(163, 59, 45, 0.12);
+      --shadow: 0 24px 60px rgba(76, 46, 22, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.5;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.78), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(200, 110, 82, 0.14), transparent 24%),
+        linear-gradient(135deg, var(--bg) 0%, var(--bg-deep) 100%);
+      overscroll-behavior-y: contain;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent 72%);
+      opacity: 0.4;
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      width: min(calc(100% - 20px), 640px);
+      margin: 0 auto;
+      padding:
+        max(18px, env(safe-area-inset-top))
+        0
+        max(22px, env(safe-area-inset-bottom));
+    }
+
+    .card {
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      padding: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--accent-deep);
+      background: rgba(255, 246, 238, 0.86);
+      border: 1px solid rgba(180, 83, 55, 0.14);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .brand::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 5px rgba(180, 83, 55, 0.12);
+      transition: box-shadow 180ms ease, transform 180ms ease;
+    }
+
+    .brand[data-tone="info"] {
+      color: var(--accent-deep);
+      background: rgba(255, 246, 238, 0.86);
+      border-color: rgba(180, 83, 55, 0.14);
+    }
+
+    .brand[data-tone="success"] {
+      color: var(--success);
+      background: rgba(244, 252, 249, 0.92);
+      border-color: rgba(31, 122, 91, 0.16);
+    }
+
+    .brand[data-tone="error"] {
+      color: var(--danger);
+      background: rgba(252, 244, 242, 0.92);
+      border-color: rgba(163, 59, 45, 0.18);
+    }
+
+    .brand[data-tone="busy"] {
+      color: var(--accent);
+      background: rgba(255, 246, 238, 0.9);
+      border-color: rgba(180, 83, 55, 0.18);
+    }
+
+    .brand[data-tone="success"]::before {
+      box-shadow: 0 0 0 5px rgba(31, 122, 91, 0.12);
+    }
+
+    .brand[data-tone="error"]::before {
+      box-shadow: 0 0 0 5px rgba(163, 59, 45, 0.12);
+    }
+
+    .brand[data-tone="busy"]::before {
+      box-shadow: 0 0 0 5px rgba(180, 83, 55, 0.14);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .profile-band {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+      margin-bottom: 16px;
+      padding: 12px 13px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 252, 247, 0.82);
+      border: 1px solid var(--line);
+    }
+
+    .avatar-frame {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(244, 225, 208, 0.92));
+    }
+
+    .avatar-frame img,
+    .avatar-fallback {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .avatar-frame img {
+      object-fit: cover;
+    }
+
+    .avatar-frame.is-fallback img {
+      display: none;
+    }
+
+    .avatar-fallback {
+      display: none;
+      place-items: center;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Noto Serif SC", serif;
+      font-size: 1.45rem;
+      color: var(--accent-deep);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.9), rgba(247, 228, 209, 0.94));
+    }
+
+    .avatar-frame.is-fallback .avatar-fallback {
+      display: grid;
+    }
+
+    .profile-kicker {
+      margin: 0 0 3px;
+      color: var(--accent-deep);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .profile-band h1 {
+      margin: 0 0 2px;
+      font-size: clamp(1.28rem, 3.3vw, 1.65rem);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+
+    .profile-band p:last-child {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+      line-height: 1.45;
+    }
+
+    .field-label {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: #513d30;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .textarea-wrap {
+      position: relative;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .textarea-wrap:focus-within {
+      border-color: rgba(180, 83, 55, 0.34);
+      box-shadow:
+        0 0 0 5px rgba(180, 83, 55, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 20px 20px 16px;
+      border: 0;
+      resize: none;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-size: 1rem;
+      line-height: 1.8;
+      outline: none;
+    }
+
+    textarea::placeholder {
+      color: rgba(84, 68, 54, 0.56);
+    }
+
+    .field-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 16px 16px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .counter {
+      font-variant-numeric: tabular-nums;
+      color: #4a4037;
+      transition: color 160ms ease;
+    }
+
+    .counter.is-near-limit {
+      color: var(--accent-deep);
+    }
+
+    .counter.is-at-limit {
+      color: var(--danger);
+    }
+
+    .captcha-card {
+      margin-top: 18px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: 0;
+    }
+
+    #turnstileWidget {
+      min-height: 66px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .send {
+      width: 100%;
+      margin-top: 18px;
+      padding: 15px 18px;
+      border: 0;
+      border-radius: 18px;
+      color: #fff8f3;
+      background: linear-gradient(135deg, #cb6446 0%, #a9442c 56%, #823120 100%);
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow:
+        0 16px 28px rgba(169, 68, 44, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+      touch-action: manipulation;
+    }
+
+    .send:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        0 20px 32px rgba(169, 68, 44, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.24);
+      filter: saturate(1.03);
+    }
+
+    .send:disabled {
+      cursor: wait;
+      opacity: 0.74;
+      box-shadow: none;
+    }
+
+    .toast-stack {
+      position: fixed;
+      left: 50%;
+      bottom: max(18px, calc(env(safe-area-inset-bottom) + 18px));
+      z-index: 20;
+      width: min(calc(100% - 24px), 420px);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(31, 122, 91, 0.16);
+      color: #184f3d;
+      background: rgba(248, 255, 252, 0.96);
+      box-shadow: 0 18px 34px rgba(31, 122, 91, 0.12);
+      font-size: 0.95rem;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: calc(100% - 16px);
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 24px;
+      }
+
+      .profile-band {
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        margin-top: 10px;
+        margin-bottom: 14px;
+        padding: 11px 12px;
+      }
+
+      .avatar-frame {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+      }
+
+      .profile-band h1 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+      }
+
+      .field-label {
+        font-size: 0.82rem;
+        margin-bottom: 8px;
+      }
+
+      textarea {
+        min-height: 140px;
+        padding: 16px 16px 12px;
+        font-size: 16px;
+      }
+
+      .field-meta {
+        justify-content: flex-end;
+        padding: 0 14px 12px;
+        font-size: 0.82rem;
+      }
+
+      .captcha-card {
+        margin-top: 14px;
+        padding: 12px 14px;
+      }
+
+      .send {
+        margin-top: 14px;
+        padding: 16px 18px;
+        min-height: 52px;
+        font-size: 1rem;
+        border-radius: 16px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .page-shell {
+        width: calc(100% - 12px);
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .brand {
+        font-size: 10px;
+        padding: 6px 9px;
+      }
+
+      .profile-band {
+        gap: 8px;
+        padding: 10px;
+        border-radius: 14px;
+      }
+
+      .avatar-frame {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+      }
+
+      .avatar-fallback {
+        font-size: 1.2rem;
+      }
+
+      .profile-kicker {
+        font-size: 0.68rem;
+      }
+
+      .profile-band p:last-child {
+        font-size: 0.85rem;
+      }
+
+      .textarea-wrap {
+        border-radius: 18px;
+      }
+
+      textarea {
+        min-height: 120px;
+        padding: 14px 14px 10px;
+      }
+
+      .captcha-card {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+      }
+
+      .send {
+        margin-top: 12px;
+        border-radius: 14px;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.12);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="card">
+      <div class="brand" id="brandStatus" data-tone="info" role="status" aria-live="polite" aria-label="页面正在载入">
+        NGL Free
+      </div>
+
+      <div class="profile-band">
+        <div class="avatar-frame" id="avatarFrame">
+          <img id="avatar" src="/avatar.jpg" alt="Avatar">
+          <span class="avatar-fallback" id="avatarFallback">@</span>
+        </div>
+        <div>
+          <p class="profile-kicker">匿名留言</p>
+          <h1 id="nickname">@your_name</h1>
+          <p id="prompt">说点什么...</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="message">留言内容</label>
+        <div class="textarea-wrap">
+          <textarea id="message" placeholder="比如：最近最想尝试的一件事是什么？" maxlength="500"></textarea>
+          <div class="field-meta">
+            <span class="counter" id="counter">0 / 500</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="captcha-card">
+        <div id="turnstileWidget"></div>
+      </div>
+
+      <button class="send" id="send" type="button">发送匿名消息</button>
+      <div class="sr-only" id="statusLive" aria-live="polite"></div>
+    </section>
+  </main>
+  <div class="toast-stack" aria-live="polite" aria-atomic="true">
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" defer></script>
+  <script>
+    const MAX_TEXT_LENGTH = 500;
+    const state = {
+      widgetId: null,
+      turnstileToken: "",
+      siteKey: "",
+      busy: false,
+      turnstileLoaded: false,
+      toastTimer: 0
+    };
+
+    const elements = {
+      avatar: document.getElementById("avatar"),
+      avatarFrame: document.getElementById("avatarFrame"),
+      avatarFallback: document.getElementById("avatarFallback"),
+      nickname: document.getElementById("nickname"),
+      prompt: document.getElementById("prompt"),
+      message: document.getElementById("message"),
+      counter: document.getElementById("counter"),
+      send: document.getElementById("send"),
+      brandStatus: document.getElementById("brandStatus"),
+      statusLive: document.getElementById("statusLive"),
+      toast: document.getElementById("toast")
+    };
+
+    function setStatus(message, tone) {
+      elements.brandStatus.dataset.tone = tone;
+      elements.brandStatus.setAttribute("aria-label", message);
+      elements.brandStatus.title = message;
+      elements.statusLive.textContent = message;
+    }
+
+    function setBusy(nextBusy) {
+      state.busy = nextBusy;
+      elements.send.disabled = nextBusy;
+      elements.send.textContent = nextBusy ? "发送中..." : "发送匿名消息";
+      elements.send.setAttribute("aria-busy", String(nextBusy));
+    }
+
+    function showToast(message) {
+      window.clearTimeout(state.toastTimer);
+      elements.toast.textContent = message;
+      elements.toast.classList.add("is-visible");
+
+      state.toastTimer = window.setTimeout(() => {
+        elements.toast.classList.remove("is-visible");
+      }, 2600);
+    }
+
+    function syncCounter() {
+      const length = elements.message.value.length;
+      elements.counter.textContent = `${length} / ${MAX_TEXT_LENGTH}`;
+      elements.counter.classList.toggle("is-near-limit", length >= 420 && length < MAX_TEXT_LENGTH);
+      elements.counter.classList.toggle("is-at-limit", length >= MAX_TEXT_LENGTH);
+    }
+
+    function resizeComposer() {
+      elements.message.style.height = "auto";
+      const nextHeight = Math.min(Math.max(elements.message.scrollHeight, 180), 420);
+      elements.message.style.height = `${nextHeight}px`;
+    }
+
+    function updateAvatarFallback(nickname) {
+      const letter = (nickname || "@").replace(/^@+/, "").trim().charAt(0) || "@";
+      elements.avatarFallback.textContent = letter.toUpperCase();
+    }
+
+    function syncAvatarState() {
+      if (elements.avatar.complete && elements.avatar.naturalWidth > 0) {
+        elements.avatarFrame.classList.remove("is-fallback");
+        return;
+      }
+
+      if (!elements.avatar.getAttribute("src")) {
+        elements.avatarFrame.classList.add("is-fallback");
+      }
+    }
+
+    function resetTurnstile() {
+      state.turnstileToken = "";
+
+      if (state.widgetId !== null && window.turnstile) {
+        window.turnstile.reset(state.widgetId);
+      }
+    }
+
+    function mountTurnstile(siteKey) {
+      if (!window.turnstile || state.widgetId !== null) {
+        return;
+      }
+
+      try {
+        state.widgetId = window.turnstile.render("#turnstileWidget", {
+          sitekey: siteKey,
+          theme: "light",
+          appearance: "always",
+          callback(token) {
+            state.turnstileToken = token;
+            setStatus("验证完成，可以发送消息了。", "success");
+          },
+          "expired-callback"() {
+            state.turnstileToken = "";
+            setStatus("验证已过期，请重新完成验证。", "info");
+          },
+          "error-callback"(code) {
+            state.turnstileToken = "";
+            setStatus(`验证组件加载失败：${code || "unknown_error"}`, "error");
+          }
+        });
+      } catch (error) {
+        state.turnstileToken = "";
+        setStatus(`验证组件初始化失败：${error?.message || "unknown_error"}`, "error");
+      }
+    }
+
+    function renderTurnstile(siteKey) {
+      if (!window.turnstile || typeof window.turnstile.render !== "function" || state.widgetId !== null) {
+        return;
+      }
+
+      mountTurnstile(siteKey);
+    }
+
+    function waitForTurnstile(siteKey) {
+      let attempts = 0;
+
+      function poll() {
+        if (window.turnstile && typeof window.turnstile.render === "function") {
+          renderTurnstile(siteKey);
+          return;
+        }
+
+        attempts += 1;
+        if (attempts >= 40) {
+          setStatus("验证组件加载超时，请刷新页面。", "error");
+          return;
+        }
+
+        window.setTimeout(poll, 150);
+      }
+
+      poll();
+    }
+
+    window.onTurnstileLoad = function onTurnstileLoad() {
+      state.turnstileLoaded = true;
+
+      if (state.siteKey) {
+        renderTurnstile(state.siteKey);
+      }
+    };
+
+    async function init() {
+      try {
+        const [configResponse, profileResponse] = await Promise.all([
+          fetch("/api/config"),
+          fetch("/api/profile")
+        ]);
+
+        if (!configResponse.ok || !profileResponse.ok) {
+          throw new Error("load_failed");
+        }
+
+        const [config, profile] = await Promise.all([
+          configResponse.json(),
+          profileResponse.json()
+        ]);
+
+        if (profile.avatarUrl) {
+          elements.avatar.src = profile.avatarUrl;
+        } else {
+          elements.avatar.removeAttribute("src");
+          elements.avatarFrame.classList.add("is-fallback");
+        }
+
+        if (profile.nickname) {
+          elements.nickname.textContent = profile.nickname;
+          updateAvatarFallback(profile.nickname);
+        } else {
+          updateAvatarFallback("@");
+        }
+
+        if (profile.prompt) {
+          elements.prompt.textContent = profile.prompt;
+        }
+
+        state.siteKey = config.turnstileSiteKey || "";
+        syncCounter();
+        resizeComposer();
+
+        if (state.siteKey) {
+          if (state.turnstileLoaded || (window.turnstile && typeof window.turnstile.render === "function")) {
+            renderTurnstile(state.siteKey);
+          } else {
+            waitForTurnstile(state.siteKey);
+          }
+          setStatus("页面已就绪。", "info");
+          return;
+        }
+
+        elements.send.disabled = true;
+        setStatus("当前未配置验证组件，暂时无法发送。", "error");
+      } catch {
+        elements.send.disabled = true;
+        setStatus("页面载入失败，请稍后刷新重试。", "error");
+      }
+    }
+
+    async function submitMessage() {
+      if (state.busy) {
+        return;
+      }
+
+      const text = elements.message.value.trim();
+
+      if (!text) {
+        setStatus("先写点内容，再发送。", "error");
+        elements.message.focus();
+        return;
+      }
+
+      if (text.length > MAX_TEXT_LENGTH) {
+        setStatus("消息太长了，请控制在 500 字以内。", "error");
+        return;
+      }
+
+      if (!state.turnstileToken) {
+        setStatus("请先完成安全验证。", "error");
+        return;
+      }
+
+      setBusy(true);
+      setStatus("正在投递消息...", "busy");
+
+      try {
+        const response = await fetch("/api/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            text,
+            token: state.turnstileToken,
+            meta: {
+              ua: navigator.userAgent,
+              lang: navigator.language,
+              tz: Intl.DateTimeFormat().resolvedOptions().timeZone || ""
+            }
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          setStatus(`发送失败：${data.error || "unknown_error"}`, "error");
+          resetTurnstile();
+          return;
+        }
+
+        elements.message.value = "";
+        resizeComposer();
+        syncCounter();
+        resetTurnstile();
+        setStatus("已送达。", "success");
+        showToast("留言已成功送达");
+      } catch {
+        setStatus("网络异常，消息还没有送达。", "error");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    elements.avatar.addEventListener("error", () => {
+      elements.avatarFrame.classList.add("is-fallback");
+    });
+
+    elements.avatar.addEventListener("load", () => {
+      elements.avatarFrame.classList.remove("is-fallback");
+    });
+
+    elements.message.addEventListener("input", () => {
+      syncCounter();
+      resizeComposer();
+    });
+
+    elements.message.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        submitMessage();
+      }
+    });
+
+    elements.send.addEventListener("click", submitMessage);
+
+    syncAvatarState();
+    syncCounter();
+    resizeComposer();
+    init();
+  </script>
+</body>
+</html>
