@@ -7,6 +7,7 @@
 
 # Keep local Cloudflare resource IDs, domains, and bindings private.
 wrangler.toml
+.wrangler.deploy.toml
 
 # Local build/runtime state.
 .wrangler/

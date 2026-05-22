@@ -335,6 +335,29 @@
       box-shadow: none;
     }
 
+    .project-footer {
+      display: flex;
+      justify-content: center;
+      padding: 16px 10px 0;
+      text-align: center;
+    }
+
+    .project-footer a {
+      color: rgba(31, 27, 23, 0.72);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+      transition: color 180ms ease;
+    }
+
+    .project-footer a:hover,
+    .project-footer a:focus-visible {
+      color: var(--accent-deep);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
     .toast-stack {
       position: fixed;
       left: 50%;
@@ -436,6 +459,10 @@
         font-size: 1rem;
         border-radius: 16px;
       }
+
+      .project-footer {
+        padding-top: 14px;
+      }
     }
 
     @media (max-width: 380px) {
@@ -498,6 +525,10 @@
         margin-top: 12px;
         border-radius: 14px;
       }
+
+      .project-footer {
+        padding-top: 12px;
+      }
     }
 
     @keyframes pulse {
@@ -546,6 +577,12 @@
       <button class="send" id="send" type="button">发送匿名消息</button>
       <div class="sr-only" id="statusLive" aria-live="polite"></div>
     </section>
+
+    <footer class="project-footer">
+      <a href="https://github.com/khemclyde-tech/nglfree" target="_blank" rel="noopener noreferrer">
+        https://github.com/khemclyde-tech/nglfree
+      </a>
+    </footer>
   </main>
   <div class="toast-stack" aria-live="polite" aria-atomic="true">
     <div class="toast" id="toast"></div>
