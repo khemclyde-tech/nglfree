@@ -1,6 +1,7 @@
 name = "nglfree"
 main = "src/index.js"
 compatibility_date = "2026-04-08"
+workers_dev = false
 
 # Copy this file to wrangler.toml for local development/deployment and fill in
 # your own Cloudflare resource IDs, service names, routes, and public variables.
